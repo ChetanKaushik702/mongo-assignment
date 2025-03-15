@@ -1,11 +1,10 @@
-const Customer = require("../../models/Customer");
 const Order = require("../../models/Order");
 
 module.exports = {
   Query: {
     async getCustomerSpending(_, { customerId }) {
       const customerOrders = await Order.aggregate([
-        { $match: { customerId: Customer.schema.Types.ObjectId(customerId) } },
+        { $match: { customerId: customerId } },
         {
           $group: {
             _id: "$customerId",

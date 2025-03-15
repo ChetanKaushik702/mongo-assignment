@@ -20,8 +20,8 @@ module.exports = {
           $match: {
             status: "completed",
             orderDate: {
-              $gte: new Date(startDate),
-              $lte: new Date(endDate),
+              $gte: startDate,
+              $lte: endDate,
             },
           },
         },
@@ -36,7 +36,7 @@ module.exports = {
                 },
               },
             ],
-            categoryDate: [
+            categoryData: [
               { $unwind: "$products" },
               {
                 $lookup: {
