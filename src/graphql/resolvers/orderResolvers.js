@@ -1,8 +1,16 @@
 const Order = require("../../models/Order");
+const redis = require("../../config/redis");
+const { v4: uuidv4 } = require("uuid");
 
 module.exports = {
   Query: {
     async getSalesAnalytics(_, { startDate, endDate }) {
+      const cacheKey = `salesAnalytics:${startDate}:${endDate}`;
+      const cachedData = await redis.get(cacheKey);
+      if (cachedData) {
+        console.log("Cache hit!");
+        return JSON.parse(cachedData);
+      }
       /**
        * This aggregation does the following:
        * 1. Filters orders by "completed" status and the specified date range.
@@ -76,11 +84,39 @@ module.exports = {
         revenue: item.revenue,
       }));
 
-      return {
+      const result = {
         totalRevenue,
         completedOrders,
         categoryBreakdown,
       };
+
+      await redis.set(cacheKey, JSON.stringify(result), "EX", 60 * 5);
+
+      return result;
+    },
+    async getCustomerOrders(_, { customerId, page = 1, limit = 5 }) {
+      const orders = await Order.find({ customerId })
+        .sort({ orderDate: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean();
+      return orders;
+    },
+  },
+
+  Mutation: {
+    async placeOrder(_, { customerId, products, totalAmount }) {
+      const order = new Order({
+        _id: uuidv4(),
+        customerId,
+        products,
+        totalAmount,
+        orderDate: new Date().toISOString(),
+        status: "completed",
+      });
+
+      await order.save();
+      return order;
     },
   },
 };

@@ -28,3 +28,40 @@ query GetSalesAnalyticsExample {
         }
     }
 }
+
+# 4) Get Customer Orders
+query {
+  getCustomerOrders(customerId: "7895595e-7f25-47fe-a6f8-94b31bfab736", page: 1, limit: 2) {
+    _id
+    totalAmount
+    orderDate
+    status
+    products {
+      productId
+      quantity
+      priceAtPurchase
+    }
+  }
+}
+
+# 5) Mutation: Create Order
+mutation placeOrder {
+  placeOrder(
+    _id: "06a714db-57ec-4af4-bd23-6e01ae764f14",
+    customerId: "7895595e-7f25-47fe-a6f8-94b31bfab736"
+    products: [
+      { productId: "1e2c1b29-ec24-40dc-b2fc-1a3c17c3093c", quantity: 2, priceAtPurchase: 269.93 }
+    ]
+    totalAmount: 539.86
+  ) {
+    _id
+    customerId
+    totalAmount
+    orderDate
+    products {
+      productId
+      quantity
+      priceAtPurchase
+    }
+  }
+}
