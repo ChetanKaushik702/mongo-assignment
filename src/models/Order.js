@@ -1,20 +1,25 @@
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    required: true,
+  },
   customerId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: "Customer",
     required: true,
   },
   products: [
     {
-      productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+      _id: false,
+      productId: { type: String, ref: "Product" },
       quantity: { type: Number, required: true },
       priceAtPurchase: { type: Number, required: true },
     },
   ],
   totalAmount: Number,
-  orderDate: { type: Date, default: Date.now },
+  orderDate: { type: String, default: new Date().toISOString() },
   status: {
     type: String,
     enum: ["canceled", "pending", "completed"],
